@@ -1,0 +1,23 @@
+<div class="select-game-container">
+  <h2>Alege tipul de joc:</h2>
+  <button (click)="createPublicGame()">Crează joc public</button>
+  <button (click)="showPrivateGamePopUp()">Crează joc privat</button>
+  <button (click)="goBack()">Înapoi</button>
+</div>
+
+<!-- Popup simplu pentru setarea parolei -->
+<div *ngIf="showPasswordPopup" class="popup-overlay">
+  <div class="popup-content">
+    <h3>Setează parola pentru camera privată</h3>
+    <input
+      type="text"
+      [(ngModel)]="password"
+      placeholder="Introdu parola"
+      class="popup-input"
+    />
+    <div class="popup-buttons">
+      <button (click)="createPrivateRoom()">Creaza camera</button>
+      <button (click)="closePopup()">Anulează</button>
+    </div>
+  </div>
+</div>

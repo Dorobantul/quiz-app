@@ -1,0 +1,36 @@
+<div class="home-container">
+  <div class="logo-container">
+    <img src="brainLogo.png" alt="Logo" class="logo" />
+  </div>
+
+  <div class="nickname-container">
+    <input type="text" id="globalUserNickName" [(ngModel)]="globalUserNickName" placeholder="Nickname-ul tău"
+      class="nickname-input" />
+  </div>
+
+
+  <div class="logo-container" *ngIf="!showActiveSessions">
+    <button (click)="proceedGameCreation()" class="home-button">Creaza un joc</button>
+    <button (click)="prroceedEnterToGameSession()" class="home-button">Alatura-te unui joc</button>
+  </div>
+
+
+   <!-- Secțiunea cu lista jocurilor active -->
+   <div *ngIf="showActiveSessions">
+    <div class="active-games-container">
+      <h3>Jocuri active:</h3>
+      <ul>
+        <li *ngFor="let session of activeSessions">
+          <span>{{ session.createdByUserName || 'Sesiune fără nume' }}</span>
+          <button (click)="joinSession(session)">Join</button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="back-button-container">
+      <button (click)="goBack()">Înapoi</button>
+    </div>
+  </div>
+
+
+</div>

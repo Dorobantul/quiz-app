@@ -1,0 +1,17 @@
+<!-- Afisam lista cu jucatorii conectati la aceasta camera -->
+
+
+
+<div class="public-session-container">
+    <h2>Sesiune Privata</h2>
+    <p>ID Sesiune: {{ sessionDetails?.sessionId }}</p>
+  
+    <h3>Participanți:</h3>
+    <ul>
+      <li *ngFor="let user of connectedUsers">
+        {{ user.nickname }}
+      </li>
+    </ul>
+  
+    <p *ngIf="connectedUsers.length === 0">Nu există participanți în această sesiune.</p>
+  </div>
