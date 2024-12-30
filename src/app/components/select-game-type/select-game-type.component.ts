@@ -11,38 +11,41 @@ import { SessionPlayersService } from '../../services/session-players.service';
   templateUrl: './select-game-type.component.html',
   styleUrls: ['./select-game-type.component.css'],
   standalone: true,
-  imports:[FormsModule, CommonModule]
+  imports: [FormsModule, CommonModule]
 })
-export class SelectGameTypeComponent implements OnInit{
+export class SelectGameTypeComponent implements OnInit {
 
   ngOnInit(): void {
-    debugger;
+    if (!UserSession.isValidUser()) {
+      alert("Du-te in Home si genereaza iar");
+    }
+
     console.log(UserSession);
   }
 
   showPasswordPopup: boolean = false; // Controlăm afișarea popup-ului
   password: string = ''; // Parola introdusă de utilizator
 
-  constructor(private router: Router, private sessionService: SessionService, private sessionPlayersService: SessionPlayersService) {}
+  constructor(private router: Router, private sessionService: SessionService, private sessionPlayersService: SessionPlayersService) { }
 
 
   async createPublicGame() {
-   
-    if(!UserSession.isValidUser()) {
+
+    if (!UserSession.isValidUser()) {
       UserSession.tempInitialize();
     }
-    
+
     //stergem toate sesiunile pe care le are utilizatorul conectat
     await this.sessionService.deleteActiveSessions(UserSession.userId, UserSession.restaurantId);
 
     //adaugam sesiunea curenta de joc
-    const sessionId = await this.sessionService.createNewSession(UserSession.userId,UserSession.restaurantId,UserSession.tableId,true,null,UserSession.nickName);
+    const sessionId = await this.sessionService.createNewSession(UserSession.userId, UserSession.restaurantId, UserSession.tableId, true, null, UserSession.nickName);
 
     //stergem toate inregistrarile care pot exista intre userId si restul sesiunilor, pentru ca un jucator poate exista intr-o singura sesiune
     await this.sessionPlayersService.removePlayerFromExistingSessions(UserSession.userId)
-    
+
     //adaugam jucatorul creator in sesiune
-    await this.sessionPlayersService.addPlayerToSession(sessionId,UserSession.userId,UserSession.nickName);
+    await this.sessionPlayersService.addPlayerToSession(sessionId, UserSession.userId, UserSession.nickName);
 
     //mergem pe pagina de public/sessionId
     this.router.navigate(['/public', sessionId]);
@@ -54,11 +57,11 @@ export class SelectGameTypeComponent implements OnInit{
   }
 
   async createPrivateRoom() {
-    
-    if(!UserSession.isValidUser()) {
+
+    if (!UserSession.isValidUser()) {
       UserSession.tempInitialize();
     }
-    
+
     // Ștergem sesiunile active
     await this.sessionService.deleteActiveSessions(UserSession.userId, UserSession.restaurantId);
 
@@ -72,6 +75,10 @@ export class SelectGameTypeComponent implements OnInit{
       UserSession.nickName
     );
 
+    // Adaugam jucatorul la sesiune
+    await this.sessionPlayersService.addPlayerToSession(sessionId, UserSession.userId, UserSession.nickName);
+
+
     // Ascundem popup-ul și navigăm către pagina dorită
     this.showPasswordPopup = false;
     this.router.navigate(['/private', sessionId]);
@@ -81,7 +88,7 @@ export class SelectGameTypeComponent implements OnInit{
     this.showPasswordPopup = false; // Închide popup-ul
   }
 
-  goBack() { 
+  goBack() {
     this.router.navigate(['/']);
   }
 }

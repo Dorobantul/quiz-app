@@ -4,6 +4,7 @@ import { HomeComponent } from './components/home-component/home-component.compon
 import {SelectGameTypeComponent} from './components/select-game-type/select-game-type.component'
 import { PublicRoomComponent } from './components/public-room/public-room.component';
 import { PrivateRoomComponent } from './components/private-room/private-room.component';
+import { GameCategoryComponent } from './components/game-category/game-category.component';
 
 
 export const routes: Routes = [
@@ -11,7 +12,8 @@ export const routes: Routes = [
     {path: '', component: HomeComponent},
     {path: 'gametype', component: SelectGameTypeComponent},
     {path: 'public/:id', component: PublicRoomComponent},
-    {path: 'private/:id', component: PrivateRoomComponent}
+    {path: 'private/:id', component: PrivateRoomComponent},
+    {path: 'game-category/:id', component: GameCategoryComponent}
 ];
 
 

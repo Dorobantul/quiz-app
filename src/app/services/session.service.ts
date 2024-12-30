@@ -9,13 +9,18 @@ import {
   doc,
   addDoc,
   Timestamp,
+  updateDoc,
+  onSnapshot,
 } from '@angular/fire/firestore';
+import { Session } from '../models/session';
+import { Observable } from 'rxjs';
+import { FirebaseService } from './firebase.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SessionService {
-  constructor(private firestore: Firestore) {}
+  constructor(private firestore: Firestore, private firestoreService: FirebaseService) { }
 
   // Șterge sesiunile active ale utilizatorului
   async deleteActiveSessions(userId: string, restaurantId: string): Promise<void> {
@@ -33,26 +38,58 @@ export class SessionService {
     }
   }
 
+
+  // Asculta la schimbarile de stare ale sesiunii
+  listenToSessionChanges(sessionId: string): Observable<any> {
+    return new Observable((observer) => {
+      //Verifica daca exista un document intr-o anumita colectie pe baza unui camp unic al colectiilor
+      this.firestoreService.findDocumentIdByField('sessions', 'sessionId', sessionId).then((documentId) => {
+        if (!documentId) {
+          observer.error('Session not found');
+          return;
+        }
+
+        const sessionRef = doc(this.firestore, 'sessions', documentId);
+        const unsubscribe = onSnapshot(
+          sessionRef,
+          (docSnapshot) => {
+            if (docSnapshot.exists()) {
+              observer.next(docSnapshot.data());
+            } else {
+              observer.error('Document does not exist');
+            }
+          },
+          (error) => {
+            observer.error(error);
+          }
+        );
+
+        // Cleanup
+        return () => unsubscribe();
+      });
+    });
+  }
+
   // Creează o nouă sesiune
   async createNewSession(
-    userId: string,
-    restaurantId: string,
-    tableId: number,
-    isPublic: boolean,
-    password: string | null = null,
-    creatorUserName: string
-  ): Promise<string> {
-    const sessionsRef = collection(this.firestore, 'sessions');
-    const sessionId = crypto.randomUUID()
+      userId: string,
+      restaurantId: string,
+      tableId: number,
+      isPublic: boolean,
+      password: string | null = null,
+      creatorUserName: string
+    ): Promise < string > {
+      const sessionsRef = collection(this.firestore, 'sessions');
+      const sessionId = crypto.randomUUID()
     await addDoc(sessionsRef, {
-      createdByUserName: creatorUserName,
-      sessionId: sessionId,
-      restaurantId,
-      tableId,
-      createdBy: userId,
-      isPublic,
-      isStarted: false,
-      createdAt: Timestamp.now(),
+        createdByUserName: creatorUserName,
+        sessionId: sessionId,
+        restaurantId,
+        tableId,
+        createdBy: userId,
+        isPublic,
+        isStarted: false,
+        createdAt: Timestamp.now(),
       password: password
     });
     console.log('Noua sesiune a fost creată.');
@@ -89,7 +126,7 @@ export class SessionService {
   async getCurrentRestaurantSessions(userId: string, restaurantId: string): Promise<any[]> {
     const sessions: any[] = [];
 
-    try{
+    try {
       const sessionsRef = collection(this.firestore, 'sessions');
 
       const q = query(sessionsRef, where('createdBy', '!=', userId), where('restaurantId', '==', restaurantId));
@@ -102,7 +139,7 @@ export class SessionService {
 
       return sessions;
 
-    }catch(error) {
+    } catch (error) {
       console.error('Error getting sessions by userId: ', error);
       throw error;
     }
@@ -110,24 +147,57 @@ export class SessionService {
 
 
   //JOIN SESSION - UTILIZATORUL INTRA INTR-O SESIUNE EXISTENTA
-  
-  async getSessionInfoBySessionId(sessionId: string): Promise<any>{
-    try{
+
+  async getSessionInfoBySessionId(sessionId: string): Promise<any> {
+    try {
       const sessionsRef = collection(this.firestore, 'sessions');
 
       const q = query(sessionsRef, where('sessionId', '==', sessionId));
 
       const querySnapshot = await getDocs(q);
 
-      if(querySnapshot.empty)
+      if (querySnapshot.empty)
         throw new Error('Sesiunea nu a fost găsită.');
 
       return querySnapshot.docs[0].data();
 
-    }catch(err){
+    } catch (err) {
       console.log(err);
       throw err;
     }
 
+  }
+
+  async startSession(sessionId: string, data: Partial<Session>): Promise<void> {
+    try {
+      // Găsește ID-ul documentului
+      const documentId = await this.findDocumentBySessionId(sessionId);
+
+      if (!documentId) {
+        console.error('Documentul cu sessionId nu a fost găsit:', sessionId);
+        throw new Error('Document not found');
+      }
+
+      // Actualizează documentul
+      const sessionDocRef = doc(this.firestore, 'sessions', documentId);
+      await updateDoc(sessionDocRef, data);
+
+      console.log('Sesiunea a fost actualizată:', sessionId);
+    } catch (error) {
+      console.error('Eroare la actualizarea sesiunii:', error);
+      throw error;
+    }
+  }
+
+  async findDocumentBySessionId(sessionId: string): Promise<string | null> {
+    const sessionsRef = collection(this.firestore, 'sessions');
+    const q = query(sessionsRef, where('sessionId', '==', sessionId));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      return querySnapshot.docs[0].id;
+    }
+
+    return null;
   }
 }

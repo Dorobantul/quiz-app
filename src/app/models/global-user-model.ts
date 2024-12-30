@@ -15,11 +15,11 @@ export const UserSession = {
     },
     
     tempInitialize() {
-      this.userId = 'bccab2a2-6b22-43bd-aa1b-bb55cd29df37'
+      this.userId = 'f3f6bcc7-d5c5-4b10-b57a-2fc6acf3fda3'
       this.restaurantId = 'testRestaurantId';
       this.restaurantName = 'testRestaurantName';
       this.tableId = 5;
-      this.nickName = 'dorobantu'
+      this.nickName = 'dorobantuThirs'
     },
 
     setNickName(nickName: string) {

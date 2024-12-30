@@ -6,6 +6,9 @@
   <div class="nickname-container">
     <input type="text" id="globalUserNickName" [(ngModel)]="globalUserNickName" placeholder="Nickname-ul tău"
       class="nickname-input" />
+    <input type="text" id="globalUserId" [(ngModel)]="globalUserId" placeholder="Introdu Id jucator"
+      class="nickname-input" />
+    <button (click)="changeUser()" class="home-button">Schimba utilizatorul</button>
   </div>
 
 
@@ -15,8 +18,8 @@
   </div>
 
 
-   <!-- Secțiunea cu lista jocurilor active -->
-   <div *ngIf="showActiveSessions">
+  <!-- Secțiunea cu lista jocurilor active -->
+  <div *ngIf="showActiveSessions">
     <div class="active-games-container">
       <h3>Jocuri active:</h3>
       <ul>

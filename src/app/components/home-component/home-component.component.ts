@@ -23,6 +23,7 @@ import { PasswordDialogComponent } from '../password-popup-component/password-po
 
 export class HomeComponent implements OnInit {
   globalUserNickName: string = '';
+  globalUserId: string = '';
   activeSessions: any[] = [];
   showActiveSessions: boolean = false;
 
@@ -55,7 +56,6 @@ export class HomeComponent implements OnInit {
     //1. Da load la toate sesiunile de joc care NU sunt ale userului si care sunt din restaurantul respectiv
     this.activeSessions = await this.sessiosService.getCurrentRestaurantSessions(UserSession.userId, UserSession.restaurantId);
 
-    debugger;
     //2. Arata listele de sesiuni active
     this.showActiveSessions = true;
   }
@@ -74,27 +74,10 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['/gametype']);
   }
 
-
-  // async joinSession(session: Session) {
-  //   if(!session.isPublic){
-  //     //1. Verifica parola. Fa un popup care sa apara pentru introducerea parolei
-
-  //     //2. Adauga juctorul in sesiunea de joc
-
-  //     //3. Navigheaza la sesiune
-  //     this.router.navigate(['/private', session.sessionId]); // Redirecționează la pagina jocului
-  //     return;
-  //   }
-
-
-  //   //1. Adauga juctorul in sesiunea de joc
-  //   //UTILIZATORUL CURENT INTRA IN SESIUNEA PE CARE A DAT CLICK. UN JUCATOR POATE SA FACA PARTE DINTR-O SINGURA SESIUNE
-  //   await this.sessionPlayersService.addPlayerToSession(session.sessionId,UserSession.userId, UserSession.nickName);
-
-
-  //   this.router.navigate(['/public', session.sessionId]);
-  // }
-
+  changeUser(){
+    UserSession.userId = this.globalUserId;
+    UserSession.nickName = this.globalUserNickName;
+  }
 
   async joinSession(session: Session): Promise<void> {
     try {

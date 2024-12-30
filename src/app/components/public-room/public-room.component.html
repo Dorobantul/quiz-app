@@ -14,4 +14,9 @@
     </ul>
   
     <p *ngIf="connectedUsers.length === 0">Nu există participanți în această sesiune.</p>
+
+    <!-- TO DO: De adaugat conditia connectedUsers.length > 1 la ngIf -->
+    <button *ngIf="sessionDetails?.createdBy === currentUserId" (click)="startGame()" class="start-game-button">
+      Start Joc
+    </button>
   </div>

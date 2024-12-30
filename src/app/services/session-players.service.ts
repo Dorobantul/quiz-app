@@ -26,6 +26,33 @@ export class SessionPlayersService {
     });
   }
 
+  //TO DO
+  // Sterge metoda daca nu are nicio referinta
+  async getConnectedUsersToSession(sessionId: string) {
+    const connectedUsers: any[] = [];
+    try {
+
+      const sessionPlayersRef = collection(this.firestore, 'session_players');
+
+      const q = query(
+        sessionPlayersRef,
+        where('sessionId', '==', sessionId)
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+        connectedUsers.push({ id: doc.id, ...doc.data() });
+      });
+
+      return connectedUsers;
+
+    } catch (error) {
+      console.error('Eroare la eliminarea jucătorului din sesiune:', error);
+      throw error;
+    }
+  }
+
   async removePlayerFromExistingSessions(userId: string) {
     try {
       const sessionPlayersRef = collection(this.firestore, 'session_players');
@@ -63,7 +90,7 @@ export class SessionPlayersService {
       const q = query(
         sessionPlayersRef,
         where('playerId', '==', userId),
-        where('sessionId', '==', sessionId)
+        where('sessionId', '!=', sessionId)
       );
 
       const querySnapshot = await getDocs(q);
